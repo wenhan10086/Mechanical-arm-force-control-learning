@@ -14,12 +14,17 @@
 #include<webots/Node.hpp>
 #include<stdio.h>
 #include<iostream>
+#include<Eigen/Dense>
 
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/aba.hpp"
 
+#include "mPinocchioIK.hpp"
 
 #ifndef PINOCCHIO_MODEL_DIR
   #define PINOCCHIO_MODEL_DIR "/home/wenhan/kuka_ws/src/kuka_experimental/kuka_lbr_iiwa_support/urdf/"
@@ -34,14 +39,21 @@ int main(int argc, char **argv) {
   Supervisor *supervisor= new Supervisor();
   Node* target_ball=supervisor->getFromDef("ball");
   int timeStep = (int)supervisor->getBasicTimeStep();
+
+
+  double kp=10;
+  double kv=1;
+
   const std::string urdf_filename =
     (argc <= 1) ? PINOCCHIO_MODEL_DIR
                     + std::string("model.urdf")
                 : argv[1];
  
-  Load the urdf model
+  //Load the urdf model
   Model model;
   pinocchio::urdf::buildModel(urdf_filename, model);
+  pinocchio::Data data(model);
+  int jointId=7;
   std::cout << "model name: " << model.name << std::endl;
 
   //实例化7个电机与位置传感器对象
@@ -78,96 +90,78 @@ int main(int argc, char **argv) {
     positionSensor[i]->enable(timeStep);
   }
   
-  载入模型
-  Model model;
-  pinocchio::urdf::buildModel(urdf_filename, model);
-  std::cout << "model name: " << model.name << std::endl;
-  Eigen::VectorXd q = pinocchio::neutral(model);
-
-  //初始化参数
-  const double eps = 1e-4;
-  const int IT_MAX = 1000;
-  const double DT = 1e-1;
-  const double damp = 1e-6;
-
-  // 建立数据
-  Data data(model);
- 
-  const int jointId=7;
-
-  // const SE3 oMdes(Eigen::Matrix3d::identity(),target_ball->getPosition());
-  const SE3 oMdes(Eigen::Matrix3d::identity(),psSensor[6]->getValue());
-
-
-  //显示当前小球位置
-  const double* position=target_ball->getPosition();
-  std::cout << "Ball position: " << position[0] << " " << position[1] << " " << position[2] << std::endl;
-      printf("Ball position: (%f, %f, %f)\n", position[0], position[1], position[2]);
-
-  //初始化雅可比矩阵和误差向量
-  pinocchio::Data::Matrix6x J(6, model.nv);
-  J.setZero();
-
-  bool success=false;
-
-  typedef Eigen::Matrix<double, 6, 1> Vector6d;
-
-  Vector6d err;
-  Eigen::VectorXd v(model.nv);
+  // 初始化
+  Eigen::VectorXd q_temp = pinocchio::neutral(model);
+  Eigen::VectorXd v_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
+  Eigen::VectorXd acc_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
+  Eigen::VectorXd q_used  = pinocchio::neutral(model);
+  Eigen::VectorXd v_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
+  Eigen::VectorXd acc_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
   
-  for （int i=0；；i++）
-  {
-    //正向运动学计算当前指定关节的位姿，并将其与目标位姿相计算，得到一个SO(3)，在转回so（3），
-    //得到其6维的误差向量
+  Eigen::VectorXd qd_temp  = pinocchio::neutral(model);
+  Eigen::VectorXd vd_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
+  Eigen::VectorXd accd_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
+  Eigen::VectorXd qd_used  = pinocchio::neutral(model);
+  Eigen::VectorXd vd_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
+  Eigen::VectorXd accd_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
 
-    forwardKinematics(model,data,q);
-    const SE3 imd=data.omi[jointId].actInv(oMdes);
-    err = log6(imd).toVector();
+  Eigen::VectorXd Eq = Eigen::VectorXd::Zero(model.nv);
+  Eigen::VectorXd Ev = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
 
-    //判断是否收敛，或是超出最大迭代次数
-    if(err.norm()<eps)
-    {
-      success = true;
-      break;
-    }
-    if(i>=IT_MAX)
-    {
-      success = false;
-      break ;
-    }
-    //计算此时的雅可比
-    computeJointJacobians(model,data,q,jointId,J);
-    Data::Matrix6 Jlog;
-    //将末端误差从世界坐标系，转为关节坐标系
-    Jlog6(imd.inverse(),Jlog);
-    //对雅可比矩阵进行修正
-    J=-Jlog*J;
-    Data::Matrix6 JJt;
-    //求jjt
-    JJt.noalias()=J*J.transpose();
-    //加上阻尼参数，就看成强化学习里的更新率
-    JJt.diagnoal().array() += damp;
-    //-j*(jjt)-1将jjt这种对称正定矩阵ld分解，求jjt*x=err的解，结合就是jjt的逆乘以err
-    //最终就是qdot
-    v.noalias() = -J.transpose() * JJt.ldlt().solve(err);
-    //积分上去
-    q = pinocchio::integrate(model, q, v * DT);
-  }
 
-  Sample a random configuration
-  Eigen::VectorXd q = randomConfiguration(model);
-  std::cout << "q: " << q.transpose() << std::endl;
+  Eigen::MatrixXd M(model.nv,model.nv);
+  M.setZero();
+
+  Eigen::MatrixXd C(model.nv,model.nv);
+  C.setZero();
+  Eigen::VectorXd tau(model.nv);
+
+
  
-  Perform the forward kinematics over the kinematic tree
-  forwardKinematics(model, data, q);
- 
-  Print out the placement of each joint of the kinematic tree
-  for (JointIndex joint_id = 0; joint_id < (JointIndex)model.njoints; ++joint_id)
-    std::cout << std::setw(24) << std::left << model.names[joint_id] << ": " << std::fixed
-              << std::setprecision(2) << data.oMi[joint_id].translation().transpose() << std::endl;
+/****************************************************************** */
+
    while (supervisor->step(timeStep) != -1)
    {
-    // const double* position=target_ball->getPosition();
+    
+    const double* position=target_ball->getPosition();
+    printf("Ball position: (%f, %f, %f)\n", position[0], position[1], position[2]);
+
+    const pinocchio::SE3 target(Eigen::Matrix3d::Identity(),Eigen::Vector3d(position[0], position[1], position[2]));
+
+    mPinocchioIk(model,data,target,jointId,qd_temp);
+
+    vd_temp=(qd_temp-qd_used)*1e+3/timeStep;
+
+    accd_temp=(vd_temp-vd_used)*1e+3/timeStep;
+
+    Eigen::VectorXd tau_f = rnea(model, data,qd_temp, vd_temp, accd_temp);
+
+    for(int i=0;i<7;i++)
+    {
+      q_temp[i]=positionSensor[i]->getValue();
+      v_temp[i]=(q_temp[i]-q_used[i])*1e+3/timeStep;
+      acc_temp[i]=(v_temp[i]-v_used[i])*1e+3/timeStep;
+      Eq[i]=qd_temp[i]-q_temp[i];
+      Ev[i]=vd_temp[i]-v_temp[i];
+    }
+
+    Eigen::VectorXd tau=tau_f+kp*Eq+kv*Ev;
+    
+    for(int i=0;i<7;i++)
+    {
+      joints[i]->setTorque(tau[i]);
+    }
+
+    for(int i=0;i<7;i++)
+    {
+      q_used=q_temp;
+      qd_used=qd_temp;
+      v_used=v_temp;
+      vd_used=vd_temp;
+      acc_used=acc_temp;
+      accd_used=accd_temp;
+    }
+
     // // std::cout << "Ball position: " << position[0] << " " << position[1] << " " << position[2] << std::endl;
     //   printf("Ball position: (%f, %f, %f)\n", position[0], position[1], position[2]);
     

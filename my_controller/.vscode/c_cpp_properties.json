@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/local//webots/include/**",
-                "/opt/openrobots/include/**"
+                "/opt/openrobots/include/**".
+                ""
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "${default}",

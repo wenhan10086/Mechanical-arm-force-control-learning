@@ -6,6 +6,18 @@
 
 #IncludeRegexTransform: 
 
+../include/mPinocchioIK.hpp
+pinocchio/spatial/se3.hpp
+-
+pinocchio/algorithm/kinematics.hpp
+-
+pinocchio/algorithm/jacobian.hpp
+-
+pinocchio/algorithm/joint-configuration.hpp
+-
+Eigen/Dense
+-
+
 /home/wenhan/ur5_pinocchio/controllers/my_controller/src/mycontroller.cpp
 webots/Robot.hpp
 -
@@ -21,6 +33,8 @@ stdio.h
 -
 iostream
 -
+Eigen/Dense
+-
 pinocchio/parsers/urdf.hpp
 /home/wenhan/ur5_pinocchio/controllers/my_controller/src/pinocchio/parsers/urdf.hpp
 pinocchio/algorithm/joint-configuration.hpp
@@ -29,6 +43,14 @@ pinocchio/algorithm/kinematics.hpp
 /home/wenhan/ur5_pinocchio/controllers/my_controller/src/pinocchio/algorithm/kinematics.hpp
 pinocchio/algorithm/jacobian.hpp
 /home/wenhan/ur5_pinocchio/controllers/my_controller/src/pinocchio/algorithm/jacobian.hpp
+pinocchio/algorithm/rnea.hpp
+/home/wenhan/ur5_pinocchio/controllers/my_controller/src/pinocchio/algorithm/rnea.hpp
+pinocchio/algorithm/crba.hpp
+/home/wenhan/ur5_pinocchio/controllers/my_controller/src/pinocchio/algorithm/crba.hpp
+pinocchio/algorithm/aba.hpp
+/home/wenhan/ur5_pinocchio/controllers/my_controller/src/pinocchio/algorithm/aba.hpp
+mPinocchioIK.hpp
+/home/wenhan/ur5_pinocchio/controllers/my_controller/src/mPinocchioIK.hpp
 
 /opt/openrobots/include/hpp/fcl/BV/AABB.h
 hpp/fcl/data_types.h
@@ -178,6 +200,28 @@ chrono
 
 /opt/openrobots/include/hpp/fcl/warning.hh
 
+/opt/openrobots/include/pinocchio/algorithm/aba.hpp
+pinocchio/multibody/model.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/model.hpp
+pinocchio/multibody/data.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/data.hpp
+pinocchio/algorithm/check.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/check.hpp
+pinocchio/algorithm/aba.hxx
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/aba.hxx
+pinocchio/algorithm/aba.txx
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/aba.txx
+
+/opt/openrobots/include/pinocchio/algorithm/aba.hxx
+pinocchio/spatial/act-on-set.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/spatial/act-on-set.hpp
+pinocchio/multibody/visitor.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/visitor.hpp
+pinocchio/algorithm/check.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/check.hpp
+
+/opt/openrobots/include/pinocchio/algorithm/aba.txx
+
 /opt/openrobots/include/pinocchio/algorithm/check.hpp
 pinocchio/multibody/model.hpp
 /opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/model.hpp
@@ -250,6 +294,30 @@ pinocchio/algorithm/constraints/constraint-model-base.hpp
 pinocchio/algorithm/constraints/constraint-data-base.hpp
 /opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/constraints/constraint-data-base.hpp
 
+/opt/openrobots/include/pinocchio/algorithm/crba.hpp
+pinocchio/multibody/model.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/model.hpp
+pinocchio/multibody/data.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/data.hpp
+pinocchio/algorithm/check.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/check.hpp
+pinocchio/algorithm/crba.hxx
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/crba.hxx
+pinocchio/algorithm/crba.txx
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/crba.txx
+
+/opt/openrobots/include/pinocchio/algorithm/crba.hxx
+pinocchio/multibody/visitor.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/visitor.hpp
+pinocchio/spatial/act-on-set.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/spatial/act-on-set.hpp
+pinocchio/algorithm/kinematics.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/kinematics.hpp
+pinocchio/algorithm/check.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/check.hpp
+
+/opt/openrobots/include/pinocchio/algorithm/crba.txx
+
 /opt/openrobots/include/pinocchio/algorithm/delassus-operator-base.hpp
 pinocchio/algorithm/fwd.hpp
 /opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/fwd.hpp
@@ -313,6 +381,24 @@ pinocchio/algorithm/check.hpp
 /opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/check.hpp
 
 /opt/openrobots/include/pinocchio/algorithm/kinematics.txx
+
+/opt/openrobots/include/pinocchio/algorithm/rnea.hpp
+pinocchio/multibody/model.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/model.hpp
+pinocchio/multibody/data.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/data.hpp
+pinocchio/algorithm/rnea.hxx
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/rnea.hxx
+pinocchio/algorithm/rnea.txx
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/rnea.txx
+
+/opt/openrobots/include/pinocchio/algorithm/rnea.hxx
+pinocchio/multibody/visitor.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/multibody/visitor.hpp
+pinocchio/algorithm/check.hpp
+/opt/openrobots/include/pinocchio/algorithm/pinocchio/algorithm/check.hpp
+
+/opt/openrobots/include/pinocchio/algorithm/rnea.txx
 
 /opt/openrobots/include/pinocchio/collision/fcl-pinocchio-conversions.hpp
 hpp/fcl/math/transform.h

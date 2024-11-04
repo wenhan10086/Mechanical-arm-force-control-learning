@@ -10,28 +10,32 @@
 
 bool mPinocchioIk(pinocchio::Model &model, pinocchio::Data &data, const pinocchio::SE3 &oMdes, int jointId, Eigen::VectorXd &q) {
   // 逆向运动学求解参数
-  const double eps = 1e-4;
-  const int IT_MAX = 1000;
-  const double DT = 1e-3;
-  const double damp = 1e-6;
+  const double eps = 1e-2;
+  const int IT_MAX = 1;
+  const double DT = 1e-1;
+  const double damp = 1e-5;
 
   // 初始化雅可比矩阵和误差向量
   pinocchio::Data::Matrix6x J(6, model.nv);
   J.setZero();
   Eigen::VectorXd v(model.nv); // 速度向量
 
-  bool success = false;
+  bool success=false ;
   typedef Eigen::Matrix<double, 6, 1> Vector6d;
   Vector6d err;
 
   for (int i = 0; i < IT_MAX; ++i) {
     // 正向运动学，计算当前关节位姿
     pinocchio::forwardKinematics(model, data, q);
-
+    if(i%100==0){
+      std::cout<<"当前位置:"<<data.oMi[jointId].translation().transpose()<<std::endl;
+    }
     // 计算误差，使用 log6 获取 SE3 误差的向量形式
     const pinocchio::SE3 iMd = data.oMi[jointId].actInv(oMdes);
     err = pinocchio::log6(iMd).toVector();
-
+    if(i%100==0){
+      std::cout<<"err:"<<iMd.translation().transpose()<<std::endl;
+    }
     // 检查误差是否在收敛范围内
     if (err.norm() < eps) {
       success = true;

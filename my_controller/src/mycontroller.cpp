@@ -27,7 +27,7 @@
 #include "mPinocchioIK.hpp"
 
 #ifndef PINOCCHIO_MODEL_DIR
-  #define PINOCCHIO_MODEL_DIR "/home/wenhan/kuka_ws/src/kuka_experimental/kuka_lbr_iiwa_support/urdf/"
+  #define PINOCCHIO_MODEL_DIR "/home/wenhan/下载/kuka_iiwa_test/src/iiwa_stack/iiwa_description/urdf/"
 #endif
 // All the webots classes are defined in the "webots" namespace
 using namespace webots;
@@ -42,11 +42,12 @@ int main(int argc, char **argv) {
 
 
   double kp=10;
-  double kv=1;
+  double kv=10000;
+  
 
   const std::string urdf_filename =
     (argc <= 1) ? PINOCCHIO_MODEL_DIR
-                    + std::string("model.urdf")
+                    + std::string("iiwa14.urdf")
                 : argv[1];
  
   //Load the urdf model
@@ -88,26 +89,26 @@ int main(int argc, char **argv) {
   {
     positionSensor[i]=supervisor->getPositionSensor(psSensorName[i]);
     positionSensor[i]->enable(timeStep);
+    usleep(10);
   }
   
   // 初始化
-  Eigen::VectorXd q_temp = pinocchio::neutral(model);
+  Eigen::VectorXd q_temp = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd v_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
   Eigen::VectorXd acc_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
-  Eigen::VectorXd q_used  = pinocchio::neutral(model);
+  Eigen::VectorXd q_used  = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd v_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
   Eigen::VectorXd acc_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
   
-  Eigen::VectorXd qd_temp  = pinocchio::neutral(model);
+  Eigen::VectorXd qd_temp  = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd vd_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
   Eigen::VectorXd accd_temp = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
-  Eigen::VectorXd qd_used  = pinocchio::neutral(model);
+  Eigen::VectorXd qd_used  = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd vd_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
   Eigen::VectorXd accd_used = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
 
   Eigen::VectorXd Eq = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd Ev = Eigen::VectorXd::Zero(model.nv);  // nv 是模型的自由度数量
-
 
   Eigen::MatrixXd M(model.nv,model.nv);
   M.setZero();
@@ -116,42 +117,78 @@ int main(int argc, char **argv) {
   C.setZero();
   Eigen::VectorXd tau(model.nv);
 
+  int init_flag=0;
 
- 
-/****************************************************************** */
+  while(supervisor->step(timeStep)!=-1){
 
-   while (supervisor->step(timeStep) != -1)
-   {
+  const double* position=target_ball->getPosition();
+  const pinocchio::SE3 target(Eigen::Matrix3d::Identity(),Eigen::Vector3d(position[0], position[1], position[2]));
+  
+  printf("Ball position: (%f, %f, %f)\n", position[0], position[1], position[2]);
+  for(int i=0;i<7;i++)
+  {
+    q_temp[i]=positionSensor[i]->getValue();
+    usleep(10);
+  }
+  pinocchio::forwardKinematics(model,data,q_temp);
+
+  if(init_flag==0)
+  {
     
-    const double* position=target_ball->getPosition();
-    printf("Ball position: (%f, %f, %f)\n", position[0], position[1], position[2]);
+    init_flag=1;
+    
+    std::cout<<"当前位姿"<<data.oMi[jointId].translation().transpose()<<std::endl;
 
-    const pinocchio::SE3 target(Eigen::Matrix3d::Identity(),Eigen::Vector3d(position[0], position[1], position[2]));
+    qd_temp=q_temp;
 
+    std::cout<<mPinocchioIk(model,data,target,jointId,qd_temp)<<std::endl;
+    std::cout<<"末端位置是："<<data.oMi[7].translation().transpose()<<std::endl;
+    std::cout<<"01_qd_temp:"<<qd_temp.transpose()<<std::endl;
+    std::cout<<"01_q_temp:"<<q_temp.transpose()<<std::endl;
+    vd_temp=(qd_temp-q_temp)/timeStep;
+    accd_temp=(vd_temp-vd_used)/timeStep;
+    std::cout<<"vd_temp:"<<vd_temp.transpose()<<std::endl;
+    std::cout<<"accd_temp:"<<accd_temp.transpose()<<std::endl;
+    qd_used=qd_temp;
+    vd_used=vd_temp;
+    accd_used=accd_temp;
+    pinocchio::forwardKinematics(model,data,q_temp);
+    static Eigen::VectorXd position=q_temp;
+
+    std::cout<<"init success!"<<std::endl;
+  }
+  else
+  {
     mPinocchioIk(model,data,target,jointId,qd_temp);
+    
+    vd_temp=(qd_temp-qd_used)/timeStep;
 
-    vd_temp=(qd_temp-qd_used)*1e+3/timeStep;
-
-    accd_temp=(vd_temp-vd_used)*1e+3/timeStep;
+    accd_temp=(vd_temp-vd_used)/timeStep;
 
     Eigen::VectorXd tau_f = rnea(model, data,qd_temp, vd_temp, accd_temp);
 
     for(int i=0;i<7;i++)
     {
       q_temp[i]=positionSensor[i]->getValue();
-      v_temp[i]=(q_temp[i]-q_used[i])*1e+3/timeStep;
-      acc_temp[i]=(v_temp[i]-v_used[i])*1e+3/timeStep;
+      v_temp[i]=(q_temp[i]-q_used[i])/timeStep;
       Eq[i]=qd_temp[i]-q_temp[i];
       Ev[i]=vd_temp[i]-v_temp[i];
     }
-
-    Eigen::VectorXd tau=tau_f+kp*Eq+kv*Ev;
+    
+    acc_temp=kp*Eq+kv*Ev+accd_temp;
+    std::cout<<"加速度为："<<acc_temp<<std::endl<<"q误差为"<<Eq.transpose()<<std::endl<<"q为："<<q_temp.transpose()<<std::endl;
+    Eigen::VectorXd qdd=Eigen::VectorXd::Random(model.nv);
+    Eigen::VectorXd tau=rnea(model,data,q_temp,v_temp,acc_temp);
+    
     
     for(int i=0;i<7;i++)
     {
       joints[i]->setTorque(tau[i]);
     }
+    std::cout<<"力矩为:"<<tau.transpose()<<std::endl;
 
+  }
+    
     for(int i=0;i<7;i++)
     {
       q_used=q_temp;
@@ -162,11 +199,8 @@ int main(int argc, char **argv) {
       accd_used=accd_temp;
     }
 
-    // // std::cout << "Ball position: " << position[0] << " " << position[1] << " " << position[2] << std::endl;
-    //   printf("Ball position: (%f, %f, %f)\n", position[0], position[1], position[2]);
-    
-   }
- 
+  }
+
 
   delete supervisor;
   return 0;

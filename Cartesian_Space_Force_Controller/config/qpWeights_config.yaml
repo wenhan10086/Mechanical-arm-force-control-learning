@@ -1,0 +1,9 @@
+hessian_weights:
+  diagonal: 
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3
+    - 1e3

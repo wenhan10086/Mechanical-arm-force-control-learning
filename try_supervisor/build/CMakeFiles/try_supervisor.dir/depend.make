@@ -20,6 +20,9 @@ CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/h
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/hpp/fcl/shape/geometric_shapes.h
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/hpp/fcl/timings.h
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/hpp/fcl/warning.hh
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/aba.hpp
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/aba.hxx
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/aba.txx
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/check.hpp
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/check.hxx
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/constraints/constraint-data-base.hpp
@@ -29,6 +32,9 @@ CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/p
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/contact-cholesky.hxx
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/contact-cholesky.txx
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/contact-info.hpp
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/crba.hpp
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/crba.hxx
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/crba.txx
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/delassus-operator-base.hpp
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/fwd.hpp
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/joint-configuration.hpp
@@ -37,6 +43,9 @@ CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/p
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/kinematics.hpp
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/kinematics.hxx
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/kinematics.txx
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/rnea.hpp
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/rnea.hxx
+CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/algorithm/rnea.txx
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/collision/fcl-pinocchio-conversions.hpp
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/config.hpp
 CMakeFiles/try_supervisor.dir/src/my_controller.cpp.o: /opt/openrobots/include/pinocchio/container/aligned-vector.hpp

@@ -1,0 +1,17 @@
+jointsMotorNames:
+  - "joint_a1"
+  - "joint_a2"
+  - "joint_a3"
+  - "joint_a4"
+  - "joint_a5"
+  - "joint_a6"
+  - "joint_a7"
+
+positionSensorNames:
+  - "joint_a1_sensor"
+  - "joint_a2_sensor"
+  - "joint_a3_sensor"
+  - "joint_a4_sensor"
+  - "joint_a5_sensor"
+  - "joint_a6_sensor"
+  - "joint_a7_sensor"

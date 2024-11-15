@@ -1,0 +1,3 @@
+/home/wenhan/ur5_pinocchio/controllers/try/build/CMakeFiles/rebuild_cache.dir
+/home/wenhan/ur5_pinocchio/controllers/try/build/CMakeFiles/edit_cache.dir
+/home/wenhan/ur5_pinocchio/controllers/try/build/CMakeFiles/try.dir
